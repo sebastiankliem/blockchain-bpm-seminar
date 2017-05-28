@@ -2,7 +2,7 @@
   "default": {
     "gas": "auto",
     "contracts": {
-      "MyNotification": {
+      "MyStack": {
         "args": []
       }
     }
