@@ -20,6 +20,7 @@ function showStack() {
   MyStack.getAll().then(function(stackValue) {
     stackValue.forEach(function(element) {
       $('#stack_value').prepend(element + '<br>');
+      autofocus();
     }, this);
   });
 }
@@ -28,11 +29,17 @@ function addToStack(number) {
   MyStack.push(number).then((transaction) => {
     // showStack();
     $('#input__add_number').val('');
+    autofocus();
   });
 }
 
 function popStack() {
   MyStack.pop().then((transaction) => {
     // showStack();
+    autofocus();
   });
+}
+
+function autofocus() {
+  $('#input__add_number').focus();
 }
