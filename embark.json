@@ -2,8 +2,10 @@
   "contracts": ["app/contracts/**"],
   "app": {
     "css/app.css": ["app/css/**"],
-    "js/app.js": ["embark.js", "app/js/_vendor/jquery.min.js", "app/js/_vendor/bootstrap.min.js", "app/js/**"],
-    "index.html": "app/index.html"
+    "js/app.js": ["embark.js", "app/js/_vendor/0_jquery.min.js", "app/js/_vendor/1_bootstrap.min.js", "app/js/index.js"],
+    "js/choreo.js": ["embark.js", "app/js/_vendor/0_jquery.min.js", "app/js/_vendor/1_bootstrap.min.js", "app/js/choreo.js"],
+    "index.html": "app/index.html",
+    "choreo.html": "app/choreo.html"
   },
   "buildDir": "dist/",
   "config": "config/",
