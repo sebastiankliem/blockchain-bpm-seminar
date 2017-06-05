@@ -1,0 +1,19 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+
+.form-control {
+    margin-bottom: 0.5rem;
+}
+
+.section {
+    padding: 0.2rem;
+    border: 1px solid gray;
+    margin: 0.1rem 0;
+}
+
+.status {
+    background-color: lightgrey;
+    font-style: italic;
+    padding: 0.2rem;
+}
