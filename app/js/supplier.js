@@ -19,7 +19,7 @@ whenEnvIsLoaded(function() {
         sendSignedContract();
     });
 
-    //TODO: loop!
+    //TODO: loop! - Alexanders!
     contractId = getLastContractId(address);
 });
 

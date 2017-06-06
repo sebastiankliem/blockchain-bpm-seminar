@@ -14,6 +14,7 @@ function sendContract() {
     let supplier_address = $('#supplier_address').val();
     this.BearingsExchange.deploy([address, supplier_address], {}).then(function(bearingsexchange) {
         var transaction = web3.eth.sendTransaction({to: supplier_address, data: bearingsexchange.address}); // web3.toAscii(data)});
+        contractId = bearingsexchange.address;
         //Supplier.ContractReceived().then(function(e) {x
         //    showContractSection(e.args);
         //});
