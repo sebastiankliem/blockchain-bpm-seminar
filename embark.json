@@ -1,11 +1,11 @@
 {
   "contracts": ["app/contracts/**"],
   "app": {
-    "css/app.css": ["app/css/**"],
-    "js/app.js": ["embark.js", "app/js/_vendor/0_jquery.min.js", "app/js/_vendor/1_bootstrap.min.js", "app/js/index.js"],
-    "js/choreo.js": ["embark.js", "app/js/_vendor/0_jquery.min.js", "app/js/_vendor/1_bootstrap.min.js", "app/js/choreo.js"],
-    "index.html": "app/index.html",
-    "choreo.html": "app/choreo.html"
+    "index.html": "app/manufacturer.html",
+    "css/messages.css": ["app/css/_vendor/**", "app/css/messages.css"],
+    "js/manufacturer.js": ["embark.js", "app/js/_vendor/0_jquery.min.js", "app/js/_vendor/1_bootstrap.min.js", "app/js/manufacturer.js"],
+    "js/supplier.js": ["embark.js", "app/js/_vendor/0_jquery.min.js", "app/js/_vendor/1_bootstrap.min.js", "app/js/supplier.js"],
+    "supplier.html": "app/supplier.html"
   },
   "buildDir": "dist/",
   "config": "config/",

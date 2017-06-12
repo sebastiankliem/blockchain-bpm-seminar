@@ -2,12 +2,8 @@
   "default": {
     "gas": "auto",
     "contracts": {
-      "SimpleStorage": {
-        "args": [
-          100
-        ]
-      },
-      "Coin": {
+      "BearingsExchange": {
+        "deploy": false,
         "args": []
       },
       "Choreo": {
