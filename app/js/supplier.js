@@ -5,6 +5,8 @@ var contract;
 whenEnvIsLoaded(function() {
     address = web3.eth.accounts[1];
 
+    $('#my_address').text(address);
+
     $('#sign_contract').on('click', function(e) {
         e.preventDefault();
         sendSignedContract();
