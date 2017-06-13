@@ -4,46 +4,48 @@ contract BearingsExchange {
     string public name;
     address private manufacturerAddress;
     address private supplierAddress;
+    string private contractText;
     string private state;
 
-    mapping(uint => function () external) next;
+    mapping(uint => function () external) transitions;
 
     event Initialized(string name, address manufacturerAddress, address supplierAddress);
-    event SendContract(address manufacturerAddress, address supplierAddress);
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
-    event ContractSigned(address manufacturerAddress, address supplierAddress, string contractText);
+    event ContractSigned();
     event PaymentRequested(address supplierAddress, uint amount);
 
-    function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _state) {
+    function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
         name = "BearingsExchange";
         manufacturerAddress = _manufacturerAddress;
         supplierAddress = _supplierAddress;
-        state = _state;
+        contractText = _contractText;
 
-        next[0] = this.notifyInitStep;
+        transitions[0] = this.sendContractStep;
     }
 
-    function next() {
-        next[0]();
+    function executeNext() {
+        transitions[0]();
     }
 
     function notifyInitStep() {
         Initialized(name, manufacturerAddress, supplierAddress);
-        next[0] = this.signContractStep;
+        transitions[0] = this.sendContractStep;
     }
+
+    function sendContract(bool isSend) {}
+
+    function sendContractStep() {
+        sendContract(true);
+        ContractSent(manufacturerAddress, supplierAddress, contractText);
+        transitions[0] = this.signContractStep;
+    }
+
+    function signContract(bool isSigned) {}
 
     function signContractStep() {
-        SendContract(manufacturerAddress, supplierAddress);
-        next[0] = this.sendPaymentStep;
-    }
-
-    function sendContract(string contractText) {
-        ContractSent(manufacturerAddress, supplierAddress, contractText);
-    }
-
-    function signContract(string contractText) {
-        ContractSigned(manufacturerAddress, supplierAddress, contractText);
-        next();
+        signContract(true);
+        ContractSigned();
+        transitions[0] = this.sendPaymentStep;
     }
 
     function sendPaymentStep() {

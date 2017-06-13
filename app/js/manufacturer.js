@@ -1,5 +1,4 @@
 var address;
-var contractId;
 var contract;
 
 whenEnvIsLoaded(function() {
@@ -14,15 +13,13 @@ whenEnvIsLoaded(function() {
 function sendContract() {
     let supplier_address = $('#supplier_address').val();
     console.log("sending contract");
-    this.BearingsExchange.deploy([address, supplier_address, "init"], {}).then(function(bearingsexchange) {
+    this.BearingsExchange.deploy([address, supplier_address, "Lorem Ipsum"], {}).then(function(bearingsexchange) {
         var transaction = web3.eth.sendTransaction({to: supplier_address, data: bearingsexchange.address}); // web3.toAscii(data)});
-        contractId = bearingsexchange.address;
-        console.log("new contract at", contractId);
         contract = bearingsexchange;
-        bearingsexchange.next();
-        bearingsexchange.sendContract("Lorem Ipsum");
-        bearingsexchange.ContractSigned().then(e => showSignedContractSection(e.args));
-        bearingsexchange.PaymentRequested().then(e => console.log(e));
+        console.log("new contract at", contract.address);
+        contract.executeNext();
+        contract.ContractSigned().then(e => showSignedContractSection(e.args));
+        contract.PaymentRequested().then(e => console.log(e));
     });
 }
 
