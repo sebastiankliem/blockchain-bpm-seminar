@@ -4,8 +4,8 @@ contract BearingsExchange {
     string public name;
     address private manufacturerAddress;
     address private supplierAddress;
+    address private nextSender;
     string private contractText;
-    string private state;
 
     mapping(uint => function () external) transitions;
 
@@ -18,18 +18,16 @@ contract BearingsExchange {
         name = "BearingsExchange";
         manufacturerAddress = _manufacturerAddress;
         supplierAddress = _supplierAddress;
+        nextSender = manufacturerAddress;
         contractText = _contractText;
 
         transitions[0] = this.sendContractStep;
     }
 
     function executeNext() {
-        transitions[0]();
-    }
-
-    function notifyInitStep() {
-        Initialized(name, manufacturerAddress, supplierAddress);
-        transitions[0] = this.sendContractStep;
+        if (msg.sender == nextSender) {
+            transitions[0]();
+        }
     }
 
     function sendContract(bool isSend) {}
@@ -37,6 +35,7 @@ contract BearingsExchange {
     function sendContractStep() {
         sendContract(true);
         ContractSent(manufacturerAddress, supplierAddress, contractText);
+        nextSender = supplierAddress;
         transitions[0] = this.signContractStep;
     }
 

@@ -3,7 +3,7 @@ var contractId;
 var contract;
 
 whenEnvIsLoaded(function() {
-    address = web3.eth.accounts[1];
+    setAddress(web3.eth.accounts[1]);
 
     $('#my_address').text(address);
 
@@ -12,7 +12,7 @@ whenEnvIsLoaded(function() {
         sendSignedContract();
     });
 
-    //TODO: i need to refresh to work properly
+    //TODO: i need to refresh to the see any new contracts
     let getContractId = () => {
         contractId = getLastContractIdTransaction(address);
         if (!contractId) {
@@ -25,6 +25,11 @@ whenEnvIsLoaded(function() {
     console.log(contract);
     contract.ContractSent().then(e => showContractSection(e.args));
 });
+
+function setAddress(_address) {
+    address = _address;
+    web3.eth.defaultAccount = _address;
+}
 
 function sendSignedContract() {
     contract.executeNext().then(function(transaction) {
