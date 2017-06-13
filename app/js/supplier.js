@@ -42,11 +42,11 @@ function showContractSection(args) {
 
 function getLastContractIdTransaction(myaccount) {
   for (var i = web3.eth.blockNumber - 1; i >= 0; i--) {
-    console.log("Searching in block " + i)
+    console.log("Searching in block " + i);
     var block = web3.eth.getBlock(i, true);
     if (block != null && block.transactions != null) {
-        for (var i = 0; i < block.transactions.length; i++) {
-            var transaction = block.transactions[i];
+        for (var j = 0; j < block.transactions.length; j++) {
+            var transaction = block.transactions[j];
             if (myaccount == transaction.to) {
                 console.log("Last Contract ID: " + transaction.input);
                 return {

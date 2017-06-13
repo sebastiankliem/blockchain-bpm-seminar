@@ -19,13 +19,15 @@ function sendContract() {
         contractId = bearingsexchange.address;
         console.log("new contract at", contractId);
         contract = bearingsexchange;
+        bearingsexchange.next();
         bearingsexchange.sendContract("Lorem Ipsum");
         bearingsexchange.ContractSigned().then(e => showSignedContractSection(e.args));
+        bearingsexchange.PaymentRequested().then(e => console.log(e));
     });
 }
 
 function showSignedContractSection(args) {
-    $('#manufacturer>.section:first').removeClass("hidden");
+    $($('#manufacturer>.section')[1]).removeClass("hidden");
     $('#manufacturer__signer').text(args.supplierAddress);
     $('#manufacturer__data').text(args.contractText);
 }

@@ -2,19 +2,40 @@ pragma solidity ^0.4.8;
 
 contract BearingsExchange {
     string public name;
-    string public state;
     address private manufacturerAddress;
     address private supplierAddress;
 
+    uint index;
+    mapping(uint => function () external) transitions;
+
+    event Initialized(string name, address manufacturerAddress, address supplierAddress);
+    event SendContract(address manufacturerAddress, address supplierAddress);
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
     event ContractSigned(address manufacturerAddress, address supplierAddress, string contractText);
-    event SignedContractReceived(address supplierAddress, string data);
+    event PaymentRequested(address supplierAddress, uint amount);
 
-    function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _state) {
+    function BearingsExchange(address _manufacturerAddress, address _supplierAddress) {
         name = "BearingsExchange";
-        state = _state;
         manufacturerAddress = _manufacturerAddress;
         supplierAddress = _supplierAddress;
+
+        index = 0;
+        transitions[0] = this.notifyInitStep;
+        transitions[1] = this.signContractStep;
+        transitions[2] = this.sendPaymentStep;
+    }
+
+    function next() {
+        index = index + 1;
+        transitions[index]();
+    }
+
+    function notifyInitStep() {
+        Initialized(name, manufacturerAddress, supplierAddress);
+    }
+
+    function signContractStep() {
+        SendContract(manufacturerAddress, supplierAddress);
     }
 
     function sendContract(string contractText) {
@@ -23,9 +44,11 @@ contract BearingsExchange {
 
     function signContract(string contractText) {
         ContractSigned(manufacturerAddress, supplierAddress, contractText);
+        next();
     }
 
-    function receiveSignedContract(address supplierAddress, string data) {
-        SignedContractReceived(supplierAddress, data);
+    function sendPaymentStep() {
+        PaymentRequested(supplierAddress, 42);
     }
+    
 }
