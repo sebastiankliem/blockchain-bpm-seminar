@@ -4,6 +4,7 @@ contract BearingsExchange {
     string public name;
     address private manufacturerAddress;
     address private supplierAddress;
+    string private state;
 
     uint index;
     mapping(uint => function () external) transitions;
@@ -14,10 +15,11 @@ contract BearingsExchange {
     event ContractSigned(address manufacturerAddress, address supplierAddress, string contractText);
     event PaymentRequested(address supplierAddress, uint amount);
 
-    function BearingsExchange(address _manufacturerAddress, address _supplierAddress) {
+    function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _state) {
         name = "BearingsExchange";
         manufacturerAddress = _manufacturerAddress;
         supplierAddress = _supplierAddress;
+        state = _state;
 
         index = 0;
         transitions[0] = this.notifyInitStep;
