@@ -6,13 +6,9 @@
         "deploy": false,
         "args": []
       },
-      "Choreo": {
-        "args":[
-          "0xc98e27a78316a703d672da86873b1aeef819cf28",
-          "0xc98e27a78316a703d672da86873b1aeef819cf28"
-        ]
-      },
-      "Process": {"args":[]}
+      "Process": {
+        "args":[]
+      }
     }
   }
 }

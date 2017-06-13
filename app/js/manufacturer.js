@@ -1,5 +1,6 @@
 var address;
 var contractId;
+var contract;
 
 whenEnvIsLoaded(function() {
     address = web3.eth.accounts[0]
@@ -12,18 +13,19 @@ whenEnvIsLoaded(function() {
 
 function sendContract() {
     let supplier_address = $('#supplier_address').val();
-    this.BearingsExchange.deploy([address, supplier_address], {}).then(function(bearingsexchange) {
+    console.log("sending contract");
+    this.BearingsExchange.deploy([address, supplier_address, "init"], {}).then(function(bearingsexchange) {
         var transaction = web3.eth.sendTransaction({to: supplier_address, data: bearingsexchange.address}); // web3.toAscii(data)});
         contractId = bearingsexchange.address;
-        //Supplier.ContractReceived().then(function(e) {x
-        //    showContractSection(e.args);
-        //});
+        console.log("new contract at", contractId);
+        contract = bearingsexchange;
         bearingsexchange.sendContract("Lorem Ipsum");
+        bearingsexchange.ContractSigned().then(e => showSignedContractSection(e.args));
     });
 }
 
 function showSignedContractSection(args) {
     $('#manufacturer>.section:first').removeClass("hidden");
     $('#manufacturer__signer').text(args.supplierAddress);
-    $('#manufacturer__data').text(JSON.stringify(JSON.parse(args.data), null, 2));
+    $('#manufacturer__data').text(args.contractText);
 }

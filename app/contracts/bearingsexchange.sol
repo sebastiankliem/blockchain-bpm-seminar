@@ -7,6 +7,7 @@ contract BearingsExchange {
     address private supplierAddress;
 
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
+    event ContractSigned(address manufacturerAddress, address supplierAddress, string contractText);
     event SignedContractReceived(address supplierAddress, string data);
 
     function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _state) {
@@ -18,6 +19,10 @@ contract BearingsExchange {
 
     function sendContract(string contractText) {
         ContractSent(manufacturerAddress, supplierAddress, contractText);
+    }
+
+    function signContract(string contractText) {
+        ContractSigned(manufacturerAddress, supplierAddress, contractText);
     }
 
     function receiveSignedContract(address supplierAddress, string data) {
