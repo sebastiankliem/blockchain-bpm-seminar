@@ -6,8 +6,7 @@ contract BearingsExchange {
     address private supplierAddress;
     string private state;
 
-    uint index;
-    mapping(uint => function () external) transitions;
+    mapping(uint => function () external) next;
 
     event Initialized(string name, address manufacturerAddress, address supplierAddress);
     event SendContract(address manufacturerAddress, address supplierAddress);
@@ -21,23 +20,21 @@ contract BearingsExchange {
         supplierAddress = _supplierAddress;
         state = _state;
 
-        index = 0;
-        transitions[0] = this.notifyInitStep;
-        transitions[1] = this.signContractStep;
-        transitions[2] = this.sendPaymentStep;
+        next[0] = this.notifyInitStep;
     }
 
     function next() {
-        index = index + 1;
-        transitions[index]();
+        next[0]();
     }
 
     function notifyInitStep() {
         Initialized(name, manufacturerAddress, supplierAddress);
+        next[0] = this.signContractStep;
     }
 
     function signContractStep() {
         SendContract(manufacturerAddress, supplierAddress);
+        next[0] = this.sendPaymentStep;
     }
 
     function sendContract(string contractText) {
