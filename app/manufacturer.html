@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Manufacturer Demo</title>
+    <title>Manufacturer | Choreo Demo</title>
     <link rel="stylesheet" href="css/messages.css">
     <script src="js/manufacturer.js"></script>
   </head>
@@ -22,6 +22,20 @@
             <div>data:
                 <pre id="manufacturer__data" class="pre-scrollable"></pre>
             </div>
+        </div>
+        <div class="section">
+            Pay Supplier
+            <form class="form form-horizontal">
+                <input id="payment_amount" class="form-control" name="payment_amount" placeholder="Amount" type="number">
+                <button id="send_payment" class="btn btn-primary">Send</button>
+            </form>
+        </div>
+
+        <div id="bearings_produced" class="section hidden">
+            Bearings produced.
+        </div>
+        <div id="payment_rejected" class="section hidden">
+            Payment rejected.
         </div>
       </div>
     </div>

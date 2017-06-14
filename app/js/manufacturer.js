@@ -10,6 +10,10 @@ whenEnvIsLoaded(function() {
         e.preventDefault();
         sendContract();
     });
+    $('#send_payment').on('click', function(e) {
+        e.preventDefault();
+        sendPayment();
+    });
 });
 
 function sendContract() {
@@ -21,7 +25,6 @@ function sendContract() {
         console.log("new contract at", contract.address);
         contract.executeNext();
         contract.ContractSigned().then(e => showSignedContractSection(e.args));
-        contract.PaymentRequested().then(e => console.log(e));
     });
 }
 
@@ -30,3 +33,19 @@ function showSignedContractSection(args) {
     $('#manufacturer__signer').text(args.supplierAddress);
     $('#manufacturer__data').text(args.contractText);
 }
+
+function sendPayment() {
+    let amount = parseInt($('#payment_amount').val());
+    contract.receivePaymentStep(amount);
+    contract.PaymentRejected().then(e => showPaymentRejectedSection());
+    contract.PaymentOK().then(e => showPaymentOKSection());
+}
+
+function showPaymentRejectedSection() {
+    $('#payment_rejected').removeClass("hidden");
+}
+
+function showPaymentOKSection() {
+    $('#bearings_produced').removeClass("hidden");
+}
+

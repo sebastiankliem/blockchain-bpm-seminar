@@ -11,8 +11,12 @@ contract BearingsExchange {
 
     event Initialized(string name, address manufacturerAddress, address supplierAddress);
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
-    event ContractSigned();
-    event PaymentRequested(address supplierAddress, uint amount);
+    event ContractSigned(address supplierAddress);
+    event PaymentReceived(address manufacturerAddress, uint paymentAmount);
+    event PaymentOK();
+    event PaymentRejected(uint difference);
+    event BearingsProduced();
+    event DifferenceRequested();
 
     function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
         name = "BearingsExchange";
@@ -43,12 +47,29 @@ contract BearingsExchange {
 
     function signContractStep() {
         signContract(true);
-        ContractSigned();
-        transitions[0] = this.sendPaymentStep;
+        ContractSigned(supplierAddress);
+        nextSender = manufacturerAddress;
     }
 
-    function sendPaymentStep() {
-        PaymentRequested(supplierAddress, 42);
+    function receivePaymentStep(uint paymentAmount) {
+        PaymentReceived(msg.sender, paymentAmount);
+        nextSender = supplierAddress;
+        if (paymentAmount > 50) {
+            PaymentOK();
+            transitions[0] = this.produceBearingsStep;
+        }
+        else {
+            PaymentRejected(50 - paymentAmount);
+            transitions[0] = this.requestDifferenceStep;
+        }
+    }
+
+    function produceBearingsStep() {
+        BearingsProduced();
+    }
+
+    function requestDifferenceStep() {
+        DifferenceRequested();
     }
     
 }

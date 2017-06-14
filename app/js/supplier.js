@@ -18,12 +18,16 @@ whenEnvIsLoaded(function() {
         if (!contractId) {
             setTimeout(getContractId, 1000); // do polling on the contract id
         }
+        
     };
     getContractId();
 
     contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
     console.log(contract);
     contract.ContractSent().then(e => showContractSection(e.args));
+    contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
+    contract.PaymentRejected().then(e => showPaymentRejectedSection());
+    contract.PaymentOK().then(e => showPaymentOKSection());
 });
 
 function setAddress(_address) {
@@ -41,7 +45,7 @@ function sendSignedContract() {
 function showContractSection(args) {
     $('#supplier>.section:first').removeClass("hidden");
     $('#manufacturer_address').text(args.manufacturerAddress);
-    $('#data').text(args.contractText);
+    $('#data').text(args.contractText);;
 }
 
 function getLastContractIdTransaction(myaccount) {
@@ -58,4 +62,18 @@ function getLastContractIdTransaction(myaccount) {
     }
   }
   return null; // contract not found
+}
+
+function showPaymentReceivedSection(args) {
+    $('#received_amount').text(args.paymentAmount.c[0]);
+    $('#payment_received').removeClass('hidden');
+}
+
+
+function showPaymentRejectedSection() {
+    $('#payment_rejected').removeClass("hidden");
+}
+
+function showPaymentOKSection() {
+    $('#produce_bearings').removeClass("hidden");
 }
