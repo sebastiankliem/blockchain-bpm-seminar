@@ -2,12 +2,13 @@ pragma solidity ^0.4.8;
 
 contract BearingsExchange {
     string public name;
+    uint private amount;
     address private manufacturerAddress;
     address private supplierAddress;
     address private nextSender;
     string private contractText;
 
-    mapping(uint => function () external) transitions;
+    mapping(uint => function () internal) transitions;
 
     event Initialized(string name, address manufacturerAddress, address supplierAddress);
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
@@ -25,7 +26,7 @@ contract BearingsExchange {
         nextSender = manufacturerAddress;
         contractText = _contractText;
 
-        transitions[0] = this.sendContractStep;
+        transitions[0] = sendContractStep;
     }
 
     function executeNext() {
@@ -34,41 +35,45 @@ contract BearingsExchange {
         }
     }
 
-    function sendContract(bool isSend) {}
+    function setAmount(uint _amount) {
+        amount = _amount;
+    }
 
-    function sendContractStep() {
+    function sendContract(bool isSend) internal {}
+
+    function sendContractStep() internal {
         sendContract(true);
         ContractSent(manufacturerAddress, supplierAddress, contractText);
         nextSender = supplierAddress;
-        transitions[0] = this.signContractStep;
+        transitions[0] = signContractStep;
     }
 
-    function signContract(bool isSigned) {}
+    function signContract(bool isSigned) internal {}
 
-    function signContractStep() {
+    function signContractStep() internal {
         signContract(true);
         ContractSigned(supplierAddress);
         nextSender = manufacturerAddress;
     }
 
-    function receivePaymentStep(uint paymentAmount) {
-        PaymentReceived(msg.sender, paymentAmount);
+    function receivePaymentStep() internal {
+        PaymentReceived(msg.sender, amount);
         nextSender = supplierAddress;
-        if (paymentAmount > 50) {
+        if (amount > 50) {
             PaymentOK();
-            transitions[0] = this.produceBearingsStep;
+            transitions[0] = produceBearingsStep;
         }
         else {
-            PaymentRejected(50 - paymentAmount);
-            transitions[0] = this.requestDifferenceStep;
+            PaymentRejected(50 - amount);
+            transitions[0] = requestDifferenceStep;
         }
     }
 
-    function produceBearingsStep() {
+    function produceBearingsStep() internal {
         BearingsProduced();
     }
 
-    function requestDifferenceStep() {
+    function requestDifferenceStep() internal {
         DifferenceRequested();
     }
     
