@@ -12,22 +12,15 @@ whenEnvIsLoaded(function() {
         sendSignedContract();
     });
 
-    //TODO: i need to refresh to the see any new contracts
-    let getContractId = () => {
-        contractId = getLastContractIdTransaction(address);
-        if (!contractId) {
-            setTimeout(getContractId, 1000); // do polling on the contract id
-        }
-        
-    };
-    getContractId();
+    getContractId().then(function() {
+        contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
+        console.log(contract);
+        contract.ContractSent().then(e => showContractSection(e.args));
+        contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
+        contract.PaymentRejected().then(e => showPaymentRejectedSection());
+        contract.PaymentOK().then(e => showPaymentOKSection());
+    });
 
-    contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
-    console.log(contract);
-    contract.ContractSent().then(e => showContractSection(e.args));
-    contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
-    contract.PaymentRejected().then(e => showPaymentRejectedSection());
-    contract.PaymentOK().then(e => showPaymentOKSection());
 });
 
 function setAddress(_address) {
@@ -47,6 +40,18 @@ function showContractSection(args) {
     $('#manufacturer_address').text(args.manufacturerAddress);
     $('#data').text(args.contractText);;
 }
+
+function getContractId() {
+    return new Promise(function (resolve, reject) {
+        (function waitForContractID(){
+            contractId = getLastContractIdTransaction(address);
+            if (contractId) {
+                return resolve(contractId);
+            }
+            setTimeout(waitForContractID, 1000);
+        })();
+    });
+};
 
 function getLastContractIdTransaction(myaccount) {
   for (var i = web3.eth.blockNumber - 1; i >= 0; i--) {
