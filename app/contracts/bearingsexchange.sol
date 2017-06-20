@@ -35,30 +35,33 @@ contract BearingsExchange {
         }
     }
 
-    function setAmount(uint _amount) {
+    function setAmount(uint _amount) external {
         amount = _amount;
     }
 
-    function sendContract(bool isSend) internal {}
-
     function sendContractStep() internal {
-        sendContract(true);
+        //sendTransaction("Contract send!")
         ContractSent(manufacturerAddress, supplierAddress, contractText);
         nextSender = supplierAddress;
         transitions[0] = signContractStep;
     }
 
-    function signContract(bool isSigned) internal {}
-
     function signContractStep() internal {
-        signContract(true);
+        //sendTransaction("Contract signed!")
         ContractSigned(supplierAddress);
         nextSender = manufacturerAddress;
+        transitions[0] = receivePaymentStep;
     }
 
     function receivePaymentStep() internal {
-        PaymentReceived(msg.sender, amount);
-        nextSender = supplierAddress;
+        if(amount > 0) {
+            PaymentReceived(msg.sender, amount);
+            transitions[0] = fineDecision;
+            executeNext();
+        }
+    }
+
+    function fineDecision() internal {
         if (amount > 50) {
             PaymentOK();
             transitions[0] = produceBearingsStep;
@@ -67,6 +70,7 @@ contract BearingsExchange {
             PaymentRejected(50 - amount);
             transitions[0] = requestDifferenceStep;
         }
+        nextSender = supplierAddress;
     }
 
     function produceBearingsStep() internal {
@@ -76,5 +80,9 @@ contract BearingsExchange {
     function requestDifferenceStep() internal {
         DifferenceRequested();
     }
-    
+
+    /* 
+    * Activity attributes: ID, Preconditions, Event, nextSender, nextStep
+    * Gateway attributes: Preconditions, (Decisions), nextSender
+    */
 }

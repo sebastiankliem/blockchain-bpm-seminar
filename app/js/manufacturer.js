@@ -36,7 +36,8 @@ function showSignedContractSection(args) {
 
 function sendPayment() {
     let amount = parseInt($('#payment_amount').val());
-    contract.receivePaymentStep(amount);
+    contract.setAmount(amount);
+    contract.executeNext();
     contract.PaymentRejected().then(e => showPaymentRejectedSection());
     contract.PaymentOK().then(e => showPaymentOKSection());
 }
