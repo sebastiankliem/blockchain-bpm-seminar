@@ -1,7 +1,18 @@
 {
   "name": "choreographies",
   "version": "0.0.1",
-  "description": "",
+  "description": "Execute a BPM choreography diagram on blockchain using smart contracts.",
+  "contributors": [
+    {
+      "name": "Sebastian Kliem"
+    },
+    {
+      "name": "Alexander Popiak"
+    },
+    {
+      "name": "Peter Schwarz"
+    }
+  ],
   "scripts": {
     "test": "embark test"
   },
