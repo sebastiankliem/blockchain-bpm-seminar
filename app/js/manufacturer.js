@@ -5,6 +5,7 @@ whenEnvIsLoaded(function() {
     address = web3.eth.accounts[0]
 
     $('#my_address').text(address);
+    getPossibleReceivers();
 
     $('#send_contract').on('click', function(e) {
         e.preventDefault();
@@ -15,6 +16,18 @@ whenEnvIsLoaded(function() {
         sendPayment();
     });
 });
+
+function getPossibleReceivers() {
+    let select = $('#supplier_address');
+    web3.eth.accounts.forEach(function(recvAddress, i) {
+        if (recvAddress != address) {
+            let opt = document.createElement('option');
+            opt.value = recvAddress;
+            opt.innerHTML = recvAddress;
+            select.append(opt);
+        }
+    });
+}
 
 function sendContract() {
     let supplier_address = $('#supplier_address').val();
