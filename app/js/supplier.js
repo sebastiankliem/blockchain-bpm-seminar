@@ -38,7 +38,6 @@ function showContractSection(args) {
 function sendSignedContract() {
     contract.executeNext().then(function(transaction) {
         $('#incoming_contract textarea, #incoming_contract button').prop("disabled", true)
-        $('#incoming_contract').append('<div class="status">sent to manufacturer</div>');
     })
 }
 

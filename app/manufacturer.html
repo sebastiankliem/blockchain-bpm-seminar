@@ -10,7 +10,7 @@
       <div id="manufacturer" class="col-md-6">
         <h4>Manufacturer</h4>
         <code id="my_address"></code>
-        <div class="section">
+        <div id="send_contract_section" class="section">
             <h3>Contract</h3>
             <form class="form form-horizontal">
                 <button id="send_contract" class="btn btn-primary">Send</button>
@@ -18,11 +18,8 @@
                 </select>
             </form>
         </div>
-        <div class="section hidden">
+        <div id="contract_signed_section" class="section hidden">
             contract signed by <span id="manufacturer__signer"></span>
-            <div>data:
-                <pre id="manufacturer__data" class="pre-scrollable"></pre>
-            </div>
         </div>
         <div class="section">
             Pay Supplier

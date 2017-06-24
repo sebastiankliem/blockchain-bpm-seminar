@@ -33,11 +33,12 @@ function sendContract() {
     let supplier_address = $('#supplier_address').val();
     console.log("sending contract");
     this.BearingsExchange.deploy([address, supplier_address, "Lorem Ipsum"], {}).then(function(bearingsexchange) {
-        var transaction = web3.eth.sendTransaction({to: supplier_address, data: bearingsexchange.address}); // web3.toAscii(data)});
+        var transaction = web3.eth.sendTransaction({to: supplier_address, data: bearingsexchange.address});
         contract = bearingsexchange;
         console.log("new contract at", contract.address);
         contract.executeNext();
         contract.ContractSigned().then(e => showSignedContractSection(e.args));
+        $('#send_contract, #supplier_address').prop("disabled", true);
     });
 }
 
