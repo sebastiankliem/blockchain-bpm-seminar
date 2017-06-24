@@ -14,7 +14,7 @@ whenEnvIsLoaded(function() {
 
     getContractId().then(function() {
         contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
-        console.log(contract);
+        //console.log(contract);
         contract.ContractSent().then(e => showContractSection(e.args));
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
         contract.PaymentRejected().then(e => showPaymentRejectedSection());
@@ -28,17 +28,18 @@ function setAddress(_address) {
     web3.eth.defaultAccount = _address;
 }
 
-function sendSignedContract() {
-    contract.executeNext().then(function(transaction) {
-        $('#supplier>.section:first textarea, #supplier>.section:first button').prop("disabled", true)
-        $('#supplier>.section:first').append('<div class="status">sent to manufacturer</div>');
-    })
+function showContractSection(args) {
+    $('#incoming_contract').removeClass("hidden");
+    $('#manufacturer_address').text(args.manufacturerAddress);
+    $('#contract_address').text(contract.address);
+    $('#data').text(args.contractText);;
 }
 
-function showContractSection(args) {
-    $('#supplier>.section:first').removeClass("hidden");
-    $('#manufacturer_address').text(args.manufacturerAddress);
-    $('#data').text(args.contractText);;
+function sendSignedContract() {
+    contract.executeNext().then(function(transaction) {
+        $('#incoming_contract textarea, #incoming_contract button').prop("disabled", true)
+        $('#incoming_contract').append('<div class="status">sent to manufacturer</div>');
+    })
 }
 
 function getContractId() {
