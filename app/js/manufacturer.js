@@ -43,17 +43,15 @@ function sendContract() {
 }
 
 function showSignedContractSection(args) {
-    $($('#manufacturer>.section')[1]).removeClass("hidden");
+    $('#contract_signed_section').removeClass("hidden");
     $('#manufacturer__signer').text(args.supplierAddress);
-    $('#manufacturer__data').text(args.contractText);
+
+    $('#pay_supplier_section').removeClass('hidden');
 }
 
 function sendPayment() {
-    let amount = parseInt($('#payment_amount').val());
-    contract.setAmount(amount);
     contract.executeNext();
-    contract.PaymentRejected().then(e => showPaymentRejectedSection());
-    contract.PaymentOK().then(e => showPaymentOKSection());
+    $('#send_payment').prop("disabled", true);
 }
 
 function showPaymentRejectedSection() {

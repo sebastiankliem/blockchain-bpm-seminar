@@ -17,8 +17,6 @@ whenEnvIsLoaded(function() {
         //console.log(contract);
         contract.ContractSent().then(e => showContractSection(e.args));
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
-        contract.PaymentRejected().then(e => showPaymentRejectedSection());
-        contract.PaymentOK().then(e => showPaymentOKSection());
     });
 
 });
@@ -29,7 +27,7 @@ function setAddress(_address) {
 }
 
 function showContractSection(args) {
-    $('#incoming_contract').removeClass("hidden");
+    $('#incoming_contract_section').removeClass("hidden");
     $('#manufacturer_address').text(args.manufacturerAddress);
     $('#contract_address').text(contract.address);
     $('#data').text(args.contractText);;
@@ -37,7 +35,7 @@ function showContractSection(args) {
 
 function sendSignedContract() {
     contract.executeNext().then(function(transaction) {
-        $('#incoming_contract textarea, #incoming_contract button').prop("disabled", true)
+        $('#incoming_contract_section textarea, #incoming_contract_section button').prop("disabled", true)
     })
 }
 
@@ -70,15 +68,6 @@ function getLastContractIdTransaction(myaccount) {
 }
 
 function showPaymentReceivedSection(args) {
-    $('#received_amount').text(args.paymentAmount.c[0]);
-    $('#payment_received').removeClass('hidden');
-}
-
-
-function showPaymentRejectedSection() {
-    $('#payment_rejected').removeClass("hidden");
-}
-
-function showPaymentOKSection() {
-    $('#produce_bearings').removeClass("hidden");
+    $('#payment_received_section').removeClass('hidden');
+    $('#send_bearings_section').removeClass('hidden');
 }

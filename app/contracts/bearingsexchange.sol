@@ -54,11 +54,7 @@ contract BearingsExchange {
     }
 
     function receivePaymentStep() internal {
-        if(amount > 0) {
-            PaymentReceived(msg.sender, amount);
-            transitions[0] = fineDecision;
-            executeNext();
-        }
+        PaymentReceived(msg.sender, amount);
     }
 
     function fineDecision() internal {
