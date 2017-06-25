@@ -15,6 +15,10 @@ whenEnvIsLoaded(function() {
         e.preventDefault();
         sendPayment();
     });
+    $('#send_analysis').on('click', function(e) {
+        e.preventDefault();
+        sendAnalysis();
+    });
 });
 
 function getPossibleReceivers() {
@@ -41,6 +45,7 @@ function sendContract() {
         $('#send_contract, #supplier_address').prop("disabled", true);
 
         contract.BearingsSent().then(e => showBearingsSentSection(e.args));
+        contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
     });
 }
 
@@ -60,7 +65,13 @@ function showBearingsSentSection() {
     $('#bearings_sent_section').removeClass('hidden');
 }
 
-function showPaymentOKSection() {
-    $('#bearings_produced').removeClass("hidden");
+function sendAnalysis() {
+    contract.setFine($('#fine_amount').val()).then(function(transaction) {
+        contract.executeNext();
+    })
+    $('#fine_amount, #send_analysis').prop("disabled", true);
 }
 
+function showConfirmationSentSection() {
+    $('#confirmation_sent_section').removeClass('hidden');
+}

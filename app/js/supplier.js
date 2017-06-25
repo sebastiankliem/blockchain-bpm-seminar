@@ -21,6 +21,7 @@ whenEnvIsLoaded(function() {
         //console.log(contract);
         contract.ContractSent().then(e => showContractSection(e.args));
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
+        contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
     });
 
 });
@@ -80,4 +81,8 @@ function sendBearings() {
 function showPaymentReceivedSection(args) {
     $('#payment_received_section').removeClass('hidden');
     $('#send_bearings_section').removeClass('hidden');
+}
+
+function showConfirmationSentSection() {
+    $('#confirmation_sent_section').removeClass('hidden');
 }

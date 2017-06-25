@@ -15,6 +15,7 @@ contract BearingsExchange {
     event ContractSigned(address supplierAddress);
     event PaymentReceived(address manufacturerAddress);
     event BearingsSent();
+    event ConfirmationSent();
 
     function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
         name = "BearingsExchange";
@@ -74,7 +75,7 @@ contract BearingsExchange {
     }
 
     function confirmationStep() internal {
-
+        ConfirmationSent();
     }
 
     function requestFineStep() internal {
