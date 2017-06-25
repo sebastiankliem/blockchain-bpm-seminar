@@ -11,6 +11,10 @@ whenEnvIsLoaded(function() {
         e.preventDefault();
         sendSignedContract();
     });
+    $('#send_bearings').on('click', function(e) {
+        e.preventDefault();
+        sendBearings();
+    });
 
     getContractId().then(function() {
         contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
@@ -24,19 +28,6 @@ whenEnvIsLoaded(function() {
 function setAddress(_address) {
     address = _address;
     web3.eth.defaultAccount = _address;
-}
-
-function showContractSection(args) {
-    $('#incoming_contract_section').removeClass("hidden");
-    $('#manufacturer_address').text(args.manufacturerAddress);
-    $('#contract_address').text(contract.address);
-    $('#data').text(args.contractText);;
-}
-
-function sendSignedContract() {
-    contract.executeNext().then(function(transaction) {
-        $('#incoming_contract_section textarea, #incoming_contract_section button').prop("disabled", true)
-    })
 }
 
 function getContractId() {
@@ -65,6 +56,25 @@ function getLastContractIdTransaction(myaccount) {
     }
   }
   return null; // contract not found
+}
+
+function showContractSection(args) {
+    $('#incoming_contract_section').removeClass("hidden");
+    $('#manufacturer_address').text(args.manufacturerAddress);
+    $('#contract_address').text(contract.address);
+    $('#data').text(args.contractText);;
+}
+
+function sendSignedContract() {
+    contract.executeNext().then(function(transaction) {
+        $('#incoming_contract_section textarea, #incoming_contract_section button').prop("disabled", true)
+    })
+}
+
+function sendBearings() {
+    contract.executeNext().then(function(transaction) {
+      $('#send_bearings').prop('diabled', true);
+    });
 }
 
 function showPaymentReceivedSection(args) {

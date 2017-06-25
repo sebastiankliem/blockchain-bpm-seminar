@@ -13,9 +13,9 @@
         <div id="send_contract_section" class="section">
             <h3>Contract</h3>
             <form class="form form-horizontal">
-                <button id="send_contract" class="btn btn-primary">Send</button>
                 <select id="supplier_address" name="Address">
                 </select>
+                <button id="send_contract" class="btn btn-primary">Send</button>
             </form>
         </div>
         <div id="contract_signed_section" class="section hidden">
@@ -25,6 +25,13 @@
             Pay Supplier
             <form class="form form-horizontal">
                 <button id="send_payment" class="btn btn-primary">Send Payment</button>
+            </form>
+        </div>
+        <div id="bearings_sent_section" class="section hidden">
+            Bearings sent. Please check and set fine.
+            <form class="form form-horizontal">
+                <input id="fine_amount" type="number" placeholder="Fine Amount %" step="1" min="0">
+                <button id="send_analysis" class="btn btn-primary">Send Analysis</button>
             </form>
         </div>
       </div>

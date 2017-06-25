@@ -39,6 +39,8 @@ function sendContract() {
         contract.executeNext();
         contract.ContractSigned().then(e => showSignedContractSection(e.args));
         $('#send_contract, #supplier_address').prop("disabled", true);
+
+        contract.BearingsSent().then(e => showBearingsSentSection(e.args));
     });
 }
 
@@ -54,8 +56,8 @@ function sendPayment() {
     $('#send_payment').prop("disabled", true);
 }
 
-function showPaymentRejectedSection() {
-    $('#payment_rejected').removeClass("hidden");
+function showBearingsSentSection() {
+    $('#bearings_sent_section').removeClass('hidden');
 }
 
 function showPaymentOKSection() {

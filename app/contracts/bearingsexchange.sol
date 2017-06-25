@@ -2,7 +2,7 @@ pragma solidity ^0.4.8;
 
 contract BearingsExchange {
     string public name;
-    uint private amount;
+    uint private fine;
     address private manufacturerAddress;
     address private supplierAddress;
     address private nextSender;
@@ -13,11 +13,8 @@ contract BearingsExchange {
     event Initialized(string name, address manufacturerAddress, address supplierAddress);
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
     event ContractSigned(address supplierAddress);
-    event PaymentReceived(address manufacturerAddress, uint paymentAmount);
-    event PaymentOK();
-    event PaymentRejected(uint difference);
-    event BearingsProduced();
-    event DifferenceRequested();
+    event PaymentReceived(address manufacturerAddress);
+    event BearingsSent();
 
     function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
         name = "BearingsExchange";
@@ -35,8 +32,8 @@ contract BearingsExchange {
         }
     }
 
-    function setAmount(uint _amount) external {
-        amount = _amount;
+    function setFine(uint _fine) external {
+        fine = _fine;
     }
 
     function sendContractStep() internal {
@@ -54,28 +51,39 @@ contract BearingsExchange {
     }
 
     function receivePaymentStep() internal {
-        PaymentReceived(msg.sender, amount);
+        PaymentReceived(msg.sender);
+        nextSender = supplierAddress;
+        transitions[0] = sendBearingsStep;
     }
 
-    function fineDecision() internal {
-        if (amount > 50) {
-            PaymentOK();
-            transitions[0] = produceBearingsStep;
+    function sendBearingsStep() internal {
+        BearingsSent();
+        nextSender = manufacturerAddress;
+        transitions[0] = fineDecision1;
+    }
+
+    function fineDecision1() internal {
+        if (fine == 0) {
+            transitions[0] = confirmationStep;
         }
         else {
-            PaymentRejected(50 - amount);
-            transitions[0] = requestDifferenceStep;
+            transitions[0] = requestFineStep;
         }
-        nextSender = supplierAddress;
+        nextSender = manufacturerAddress;
+        executeNext();
     }
 
-    function produceBearingsStep() internal {
-        BearingsProduced();
+    function confirmationStep() internal {
+
     }
 
-    function requestDifferenceStep() internal {
-        DifferenceRequested();
+    function requestFineStep() internal {
+
     }
+
+    // function requestDifferenceStep() internal {
+    //     DifferenceRequested();
+    // }
 
     /* 
     * Activity attributes: ID, Preconditions, Event, nextSender, nextStep
