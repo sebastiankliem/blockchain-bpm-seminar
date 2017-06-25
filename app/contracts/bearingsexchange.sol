@@ -16,6 +16,7 @@ contract BearingsExchange {
     event PaymentReceived(address manufacturerAddress);
     event BearingsSent();
     event ConfirmationSent();
+    event FineRequestSent(uint fine);
 
     function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
         name = "BearingsExchange";
@@ -79,6 +80,23 @@ contract BearingsExchange {
     }
 
     function requestFineStep() internal {
+        FineRequestSent(fine);
+        nextSender = supplierAddress;
+        transitions[0] = fineDecision2;
+    }
+
+    function fineDecision2() internal {
+        if (fine < 100) {
+            transitions[0] = confirmationStep;
+        }
+        else {
+            transitions[0] = cancelContractStep;
+        }
+        nextSender = supplierAddress;
+        executeNext();
+    }
+
+    function cancelContractStep() internal {
 
     }
 

@@ -15,6 +15,10 @@ whenEnvIsLoaded(function() {
         e.preventDefault();
         sendBearings();
     });
+    $('#send_fee').on('click', function(e) {
+        e.preventDefault();
+        sendFee();
+    });
 
     getContractId().then(function() {
         contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
@@ -22,6 +26,7 @@ whenEnvIsLoaded(function() {
         contract.ContractSent().then(e => showContractSection(e.args));
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
+        contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
     });
 
 });
@@ -74,7 +79,7 @@ function sendSignedContract() {
 
 function sendBearings() {
     contract.executeNext().then(function(transaction) {
-      $('#send_bearings').prop('diabled', true);
+      $('#send_bearings').prop('disabled', true);
     });
 }
 
@@ -85,4 +90,15 @@ function showPaymentReceivedSection(args) {
 
 function showConfirmationSentSection() {
     $('#confirmation_sent_section').removeClass('hidden');
+}
+function showFineRequestSentSection(args) {
+    $('#fine_request_amount').text(args.fine);
+    $('#fine_request_sent_section').removeClass('hidden');
+}
+
+function sendFee() {
+    console.log("fee sent");
+    contract.executeNext().then(function(transaction) {
+      $('#send_fee').prop('disabled', true);
+    });
 }
