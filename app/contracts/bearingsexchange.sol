@@ -17,6 +17,7 @@ contract BearingsExchange {
     event BearingsSent();
     event ConfirmationSent();
     event FineRequestSent(uint fine);
+    event CancellationSent();
 
     function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
         name = "BearingsExchange";
@@ -97,7 +98,9 @@ contract BearingsExchange {
     }
 
     function cancelContractStep() internal {
-
+        CancellationSent();
+        // nextSender = supplierAddress;
+        // transitions[0] = endContractStep;
     }
 
     // function requestDifferenceStep() internal {

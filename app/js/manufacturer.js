@@ -47,6 +47,7 @@ function sendContract() {
         contract.BearingsSent().then(e => showBearingsSentSection(e.args));
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
+        contract.CancellationSent().then(e => showContractCancelledSection(e.args));
     });
 }
 
@@ -80,3 +81,8 @@ function showConfirmationSentSection() {
 function showFineRequestSentSection() {
     $('#fine_request_sent_section').removeClass('hidden');
 }
+
+function showContractCancelledSection() {
+    $('#contract_cancelled_section').removeClass('hidden');
+}
+

@@ -27,6 +27,7 @@ whenEnvIsLoaded(function() {
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
+        contract.CancellationSent().then(e => showContractCancelledSection(e.args));
     });
 
 });
@@ -101,4 +102,8 @@ function sendFee() {
     contract.executeNext().then(function(transaction) {
       $('#send_fee').prop('disabled', true);
     });
+}
+
+function showContractCancelledSection() {
+    $('#contract_cancelled_section').removeClass('hidden');
 }
