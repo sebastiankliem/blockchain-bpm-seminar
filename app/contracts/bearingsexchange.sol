@@ -78,6 +78,7 @@ contract BearingsExchange {
 
     function confirmationStep() internal {
         ConfirmationSent();
+        selfdestruct(manufacturerAddress);
     }
 
     function requestFineStep() internal {
@@ -99,8 +100,6 @@ contract BearingsExchange {
 
     function cancelContractStep() internal {
         CancellationSent();
-        // nextSender = supplierAddress;
-        // transitions[0] = endContractStep;
     }
 
     // function requestDifferenceStep() internal {
