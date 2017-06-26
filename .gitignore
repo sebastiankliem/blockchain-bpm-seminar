@@ -1,3 +1,5 @@
 node_modules
 dist
 chains.json
+
+.DS_Store
