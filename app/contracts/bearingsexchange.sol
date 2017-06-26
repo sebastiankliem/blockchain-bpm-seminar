@@ -8,7 +8,7 @@ contract BearingsExchange {
     address private nextSender;
     string private contractText;
 
-    mapping(uint => function () internal) transitions;
+    function () internal nextTransaction;
 
     event Initialized(string name, address manufacturerAddress, address supplierAddress);
     event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
@@ -26,12 +26,12 @@ contract BearingsExchange {
         nextSender = manufacturerAddress;
         contractText = _contractText;
 
-        transitions[0] = sendContractStep;
+        nextTransaction = sendContractStep;
     }
 
     function executeNext() {
         if (msg.sender == nextSender) {
-            transitions[0]();
+            nextTransaction();
         }
     }
 
@@ -43,34 +43,34 @@ contract BearingsExchange {
         //sendTransaction("Contract send!")
         ContractSent(manufacturerAddress, supplierAddress, contractText);
         nextSender = supplierAddress;
-        transitions[0] = signContractStep;
+        nextTransaction = signContractStep;
     }
 
     function signContractStep() internal {
         //sendTransaction("Contract signed!")
         ContractSigned(supplierAddress);
         nextSender = manufacturerAddress;
-        transitions[0] = receivePaymentStep;
+        nextTransaction = receivePaymentStep;
     }
 
     function receivePaymentStep() internal {
         PaymentReceived(msg.sender);
         nextSender = supplierAddress;
-        transitions[0] = sendBearingsStep;
+        nextTransaction = sendBearingsStep;
     }
 
     function sendBearingsStep() internal {
         BearingsSent();
         nextSender = manufacturerAddress;
-        transitions[0] = fineDecision1;
+        nextTransaction = fineDecision1;
     }
 
     function fineDecision1() internal {
         if (fine == 0) {
-            transitions[0] = confirmationStep;
+            nextTransaction = confirmationStep;
         }
         else {
-            transitions[0] = requestFineStep;
+            nextTransaction = requestFineStep;
         }
         nextSender = manufacturerAddress;
         executeNext();
@@ -84,15 +84,15 @@ contract BearingsExchange {
     function requestFineStep() internal {
         FineRequestSent(fine);
         nextSender = supplierAddress;
-        transitions[0] = fineDecision2;
+        nextTransaction = fineDecision2;
     }
 
     function fineDecision2() internal {
         if (fine < 100) {
-            transitions[0] = confirmationStep;
+            nextTransaction = confirmationStep;
         }
         else {
-            transitions[0] = cancelContractStep;
+            nextTransaction = cancelContractStep;
         }
         nextSender = supplierAddress;
         executeNext();
