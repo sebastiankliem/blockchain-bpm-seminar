@@ -6,6 +6,10 @@
         "deploy": false,
         "args": []
       },
+      "GeneralChoreo": {
+        "deploy": false,
+        "args": []
+      },
       "Process": {
         "args":[]
       }
