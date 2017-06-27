@@ -1,6 +1,6 @@
 pragma solidity ^0.4.8;
 
-contract GenericChoreo {
+contract GenericChoreography {
 
 	//Attributes need to be generated
 	string public name = "Choreography name";
@@ -11,10 +11,11 @@ contract GenericChoreo {
     mapping(uint => address) nextSenders;
     mapping(uint => bool) stepDone;
 
-    Transition[] transitions;
+    uint[] transitionIds;
+    mapping (uint => Transition) transitions;
 
     struct Transition {
-        uint id;
+        uint previousId;
         address nextSender;
         function () internal func;
     }
@@ -25,53 +26,70 @@ contract GenericChoreo {
     event Done();
 
 	//Generated constructor - depending on number of participants
-	function GeneralChoreography(string _name, address _participant1, address _participant2) {
-        name = _name;
+	function GenericChoreography(address _participant1, address _participant2) {
         participant1 = _participant1;
         participant2 = _participant2;
+        
+        createTransitions();
 
         stepDone[42] = true;
-        transitions.push(Transition(42, participant1, step0));
+        transitionIds.push(0);
+    }
+
+    function createTransitions() {
+        transitions[0] = Transition(42, participant1, step0);
+        transitions[1] = Transition(0, participant1, step1);
+        transitions[2] = Transition(1, participant1, gate0);
+        transitions[3] = Transition(1, participant1, step2);
+        transitions[4] = Transition(1, participant2, stepNonExistent);
+        transitions[5] = Transition(2, participant1, step3);
+        transitions[6] = Transition(3, participant1, gate1);
+        transitions[7] = Transition(3, participant2, step5);
+        transitions[8] = Transition(3, participant2, step6);
+        transitions[9] = Transition(4, participant1, gate2);
+        transitions[10] = Transition(5, participant1, gate2);
+        transitions[11] = Transition(6, participant2, gate2);
+        transitions[12] = Transition(5, participant1, step7);
     }
 
     function executeNext() {
-        for (var index = 0; index < transitions.length; index++) {
-            var tran = transitions[index];
-            if (msg.sender == tran.nextSender && stepDone[tran.id]) {
+        for (var index = 0; index < transitionIds.length; index++) {
+            var tran = transitions[transitionIds[index]];
+            if (msg.sender == tran.nextSender && stepDone[tran.previousId]) {
                 tran.func();
                 // delete the used transition function, very hacky :-/
                 var i = index;
-                while (i < transitions.length - 1) {
-                    transitions[i] = transitions[i+1];
+                while (i < transitionIds.length - 1) {
+                    transitionIds[i] = transitionIds[i+1];
                     i++;
                 }
-                transitions.length--;
+                transitionIds.length--;
             }
         }
     }
 
-    function step0() {
+    function step0() internal {
         DoStep0();
-        transitions.push(Transition(0, participant1, step1));
+        transitionIds.push(1);
     }
 
-    function step0Done() {
+    function step0Done() internal {
         stepDone[0] = true;
         executeNext();
     }
 
     function step1() internal {
         stepDone[1] = true;
-        transitions.push(Transition(1, msg.sender, gate0));
+        transitionIds.push(2);
         executeNext();
     }
 
     function gate0() internal {
         if (true) {
-            transitions.push(Transition(1, msg.sender, step2));
+            transitionIds.push(3);
             executeNext();
         } else {
-            transitions.push(Transition(1, msg.sender, stepNonExistent));
+            transitionIds.push(4);
             executeNext();
         }
     }
@@ -80,7 +98,7 @@ contract GenericChoreo {
 
     function step2() internal {
         DoStep2();
-        transitions.push(Transition(2, participant1, step3));
+        transitionIds.push(5);
     }
 
     function step2Done() {
@@ -90,30 +108,30 @@ contract GenericChoreo {
 
     function step3() internal {
         stepDone[3] = true;
-        transitions.push(Transition(3, msg.sender, gate1));
+        transitionIds.push(6);
         executeNext();
     }
 
     function gate1() internal {
-        transitions.push(Transition(3, msg.sender, step5));
-        transitions.push(Transition(3, msg.sender, step6));
+        transitionIds.push(7);
+        transitionIds.push(8);
         executeNext();
     }
 
     //function step4() internal {
     //    stepDone[4] = true;
-    //    transitions.push(Transition(4, msg.sender, gate2));
+    //    transitionIds.push(9);
     //}
 
     function step5() internal {
         stepDone[5] = true;
-        transitions.push(Transition(5, msg.sender, gate2));
+        transitionIds.push(10);
         executeNext();
     }
 
     function step6() internal {
         stepDone[6] = true;
-        transitions.push(Transition(6, msg.sender, gate2));
+        transitionIds.push(11);
         executeNext();
     }
 
@@ -123,7 +141,7 @@ contract GenericChoreo {
         steps[0] = 5;
         steps[1] = 6;
         if (andJoinGateway(steps)) {
-            transitions.push(Transition(5, msg.sender, step7));
+            transitionIds.push(12);
             executeNext();
         }
     }

@@ -6,12 +6,9 @@
         "deploy": false,
         "args": []
       },
-      "GeneralChoreo": {
+      "GenericChoreography": {
         "deploy": false,
         "args": []
-      },
-      "Process": {
-        "args":[]
       }
     }
   }
