@@ -73,7 +73,7 @@ contract GenericChoreography {
         transitionIds.push(1);
     }
 
-    function step0Done() internal {
+    function step0Done() {
         stepDone[0] = true;
         executeNext();
     }
