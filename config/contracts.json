@@ -9,6 +9,9 @@
       "GenericChoreography": {
         "gas": 4000000,
         "args": ["0xba649c59a391080a232aea744539f1d087dbf7a9", "0xc0a76013711f495398ccfb8a16499c0a3a324f5f"]
+      },
+      "Choreo": {
+        "deploy": false
       }
     }
   }

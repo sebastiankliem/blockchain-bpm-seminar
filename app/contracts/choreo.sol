@@ -1,17 +1,13 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
-contract GenericChoreography {
-
-	//Attributes need to be generated
-	string public name = "Choreography name";
+contract Choreo {
     address private participant1;
     address private participant2;
 
     //Mapping for branching purposes
-    mapping(uint => address) nextSenders;
     mapping(uint => bool) stepDone;
 
-    uint[] transitionIds;
+    uint[] public transitionIds;
     mapping (uint => Transition) transitions;
 
     struct Transition {
@@ -25,10 +21,9 @@ contract GenericChoreography {
     event DoStep2();
     event Done();
 
-    uint counter = 0;
+    uint public lastStep;
 
-	//Generated constructor - depending on number of participants
-	function GenericChoreography(address _participant1, address _participant2) {
+	function Choreo(address _participant1, address _participant2) {
         participant1 = _participant1;
         participant2 = _participant2;
         
@@ -36,6 +31,7 @@ contract GenericChoreography {
 
         stepDone[42] = true;
         transitionIds.push(0);
+        lastStep = 42;
     }
 
     function createTransitions() {
@@ -48,16 +44,40 @@ contract GenericChoreography {
         transitions[6] = Transition(3, participant1, gate1);
         transitions[7] = Transition(3, participant2, step5);
         transitions[8] = Transition(3, participant2, step6);
-        transitions[9] = Transition(4, participant1, gate2);
+        transitions[9] = Transition(4, participant1, stepNonExistent);
         transitions[10] = Transition(5, participant1, gate2);
         transitions[11] = Transition(6, participant2, gate2);
         transitions[12] = Transition(5, participant1, step7);
     }
 
-    function executeNext() {
+    event NextSender(address sender);
+    function getNextSenders() {
+        for (var i = 0; i < transitionIds.length; i++) {
+            var tran = transitions[transitionIds[i]];
+            NextSender(tran.nextSender);
+        }
+    }
+
+    event LastStep(uint step);
+    function getLastStep() {
+        LastStep(lastStep);
+    }
+
+    event Length(uint length);
+    function getLength() {
+        Length(transitionIds.length);
+    }
+
+    event If();
+    event ExecuteNext();
+    event TransitionE(uint previousId, address nextSender);
+    function executeNext(address sender) {
+        ExecuteNext();
         for (var index = 0; index < transitionIds.length; index++) {
             var tran = transitions[transitionIds[index]];
-            if (msg.sender == tran.nextSender && stepDone[tran.previousId]) {
+            TransitionE(tran.previousId, tran.nextSender);
+            if (sender == tran.nextSender && stepDone[tran.previousId]) {
+                If();
                 tran.func();
                 // delete the used transition function, very hacky :-/
                 var i = index;
@@ -70,29 +90,29 @@ contract GenericChoreography {
         }
     }
 
-    function step0() internal {
+    function step0() {
         DoStep0();
         transitionIds.push(1);
     }
 
     function step0Done() {
-        stepDone[0] = true;
-        executeNext();
+        if (stepDone[transitions[0].previousId]) {
+            stepDone[0] = true;
+            lastStep = 0;
+        }
     }
 
     function step1() internal {
         stepDone[1] = true;
+        lastStep = 1;
         transitionIds.push(2);
-        //executeNext();
     }
 
     function gate0() internal {
         if (true) {
             transitionIds.push(3);
-            //executeNext();
         } else {
             transitionIds.push(4);
-            //executeNext();
         }
     }
 
@@ -104,20 +124,21 @@ contract GenericChoreography {
     }
 
     function step2Done() {
-        stepDone[2] = true;
-        executeNext();
+        if (stepDone[transitions[2].previousId]) {
+            stepDone[2] = true;
+            lastStep = 2;
+        }
     }
 
     function step3() internal {
         stepDone[3] = true;
+        lastStep = 3;
         transitionIds.push(6);
-        executeNext();
     }
 
     function gate1() internal {
         transitionIds.push(7);
         transitionIds.push(8);
-        executeNext();
     }
 
     //function step4() internal {
@@ -127,24 +148,21 @@ contract GenericChoreography {
 
     function step5() internal {
         stepDone[5] = true;
+        lastStep = 5;
         transitionIds.push(10);
-        executeNext();
     }
 
-    function step6() internal {
+    function step6() {
         stepDone[6] = true;
+        lastStep = 6;
         transitionIds.push(11);
-        executeNext();
     }
 
-    function gate2() internal {
+    function gate2() {
         // we cannot use array literals because they have fixed size and there is no conversion to variable size
-        uint[] memory steps;
-        steps[0] = 5;
-        steps[1] = 6;
+        uint[2] memory steps = [uint(5), 6];
         if (andJoinGateway(steps)) {
             transitionIds.push(12);
-            executeNext();
         }
     }
 
@@ -153,7 +171,23 @@ contract GenericChoreography {
         Done();
     }
 
-    function andJoinGateway(uint[] steps) internal returns (bool) {
+    function andJoinGateway(uint[2] steps) internal returns (bool) {
+        var stepThrough = true;
+        for (var index = 0; index < steps.length; index++) {
+            stepThrough = stepThrough && stepDone[steps[index]];
+        }
+        return stepThrough;
+    }
+
+    function andJoinGateway(uint[3] steps) internal returns (bool) {
+        var stepThrough = true;
+        for (var index = 0; index < steps.length; index++) {
+            stepThrough = stepThrough && stepDone[steps[index]];
+        }
+        return stepThrough;
+    }
+
+    function andJoinGateway(uint[4] steps) internal returns (bool) {
         var stepThrough = true;
         for (var index = 0; index < steps.length; index++) {
             stepThrough = stepThrough && stepDone[steps[index]];
