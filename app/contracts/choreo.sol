@@ -1,6 +1,7 @@
 pragma solidity ^0.4.11;
 
 contract Choreo {
+    uint constant minimumGas = 150000;
     address private participant1;
     address private participant2;
 
@@ -20,6 +21,8 @@ contract Choreo {
     event DoStep0();
     event DoStep2();
     event Done();
+    event NotEnoughGas(uint gasLeft, uint gasExpected);
+    event GasLeft(uint gasLeft);
 
     uint public lastStep;
 
@@ -68,24 +71,31 @@ contract Choreo {
         Length(transitionIds.length);
     }
 
+    // delete the used transition function, pretty hacky
+    function removeTransitionAt(uint index) {
+        var i = index;
+        while (i < transitionIds.length - 1) {
+            transitionIds[i] = transitionIds[i+1];
+            i++;
+        }
+        transitionIds.length--;
+    }
+
     event If();
     event ExecuteNext();
     event TransitionE(uint previousId, address nextSender);
     function executeNext(address sender) {
         ExecuteNext();
+        GasLeft(msg.gas);
         for (var index = 0; index < transitionIds.length; index++) {
             var tran = transitions[transitionIds[index]];
             TransitionE(tran.previousId, tran.nextSender);
             if (sender == tran.nextSender && stepDone[tran.previousId]) {
+                GasLeft(msg.gas);
+                removeTransitionAt(index);
                 If();
                 tran.func();
-                // delete the used transition function, very hacky :-/
-                var i = index;
-                while (i < transitionIds.length - 1) {
-                    transitionIds[i] = transitionIds[i+1];
-                    i++;
-                }
-                transitionIds.length--;
+                GasLeft(msg.gas);
             }
         }
     }
@@ -93,6 +103,12 @@ contract Choreo {
     function step0() {
         DoStep0();
         transitionIds.push(1);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function step0Done() {
@@ -106,6 +122,12 @@ contract Choreo {
         stepDone[1] = true;
         lastStep = 1;
         transitionIds.push(2);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function gate0() internal {
@@ -114,6 +136,12 @@ contract Choreo {
         } else {
             transitionIds.push(4);
         }
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function stepNonExistent() internal {}
@@ -121,6 +149,12 @@ contract Choreo {
     function step2() internal {
         DoStep2();
         transitionIds.push(5);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function step2Done() {
@@ -134,11 +168,23 @@ contract Choreo {
         stepDone[3] = true;
         lastStep = 3;
         transitionIds.push(6);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function gate1() internal {
         transitionIds.push(7);
         transitionIds.push(8);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     //function step4() internal {
@@ -150,12 +196,24 @@ contract Choreo {
         stepDone[5] = true;
         lastStep = 5;
         transitionIds.push(10);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function step6() {
         stepDone[6] = true;
         lastStep = 6;
         transitionIds.push(11);
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
 
     function gate2() {
@@ -163,6 +221,12 @@ contract Choreo {
         uint[2] memory steps = [uint(5), 6];
         if (andJoinGateway(steps)) {
             transitionIds.push(12);
+            if (msg.gas > minimumGas) {
+                GasLeft(msg.gas);
+                executeNext(msg.sender);
+            } else {
+                NotEnoughGas(msg.gas, minimumGas);
+            }
         }
     }
 
