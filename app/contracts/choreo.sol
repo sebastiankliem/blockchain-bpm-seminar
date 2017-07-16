@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 contract Choreo {
-    uint constant minimumGas = 150000;
+    uint constant minimumGas = 100000;
     address private participant1;
     address private participant2;
 
@@ -53,6 +53,26 @@ contract Choreo {
         transitions[12] = Transition(5, participant1, step7);
     }
 
+    modifier only(address participant) {
+        require(msg.sender == participant);
+        _;
+    }
+
+    modifier whenDone(uint stepId) {
+        require(stepDone[stepId]);
+        _;
+    }
+
+    modifier executeNextIfEnoughGas() {
+        _;
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
+    }
+
     event NextSender(address sender);
     function getNextSenders() {
         for (var i = 0; i < transitionIds.length; i++) {
@@ -72,7 +92,7 @@ contract Choreo {
     }
 
     // delete the used transition function, pretty hacky
-    function removeTransitionAt(uint index) {
+    function removeTransition(uint index) {
         var i = index;
         while (i < transitionIds.length - 1) {
             transitionIds[i] = transitionIds[i+1];
@@ -81,7 +101,6 @@ contract Choreo {
         transitionIds.length--;
     }
 
-    event If();
     event ExecuteNext();
     event TransitionE(uint previousId, address nextSender);
     function executeNext(address sender) {
@@ -91,70 +110,65 @@ contract Choreo {
             var tran = transitions[transitionIds[index]];
             TransitionE(tran.previousId, tran.nextSender);
             if (sender == tran.nextSender && stepDone[tran.previousId]) {
-                GasLeft(msg.gas);
-                removeTransitionAt(index);
-                If();
-                tran.func();
+                if (msg.gas > minimumGas) {
+                    GasLeft(msg.gas);
+                    removeTransition(index);
+                    tran.func();
+                } else {
+                    NotEnoughGas(msg.gas, minimumGas);
+                }
                 GasLeft(msg.gas);
             }
         }
     }
 
-    function step0() {
+    function step0()
+        executeNextIfEnoughGas()
+    {
         DoStep0();
         transitionIds.push(1);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
-    function step0Done() {
-        if (stepDone[transitions[0].previousId]) {
-            stepDone[0] = true;
-            lastStep = 0;
-        }
+    uint step0Data;
+    function step0Done(uint someData)
+        only(participant1)
+        whenDone(transitions[0].previousId)
+    {
+        step0Data = someData;
+        stepDone[0] = true;
+        lastStep = 0;
     }
 
-    function step1() internal {
+    event Step0Data(uint data);
+    function getStep0Data() {
+        Step0Data(step0Data);
+    }
+
+    function step1() internal
+        executeNextIfEnoughGas()
+    {
         stepDone[1] = true;
         lastStep = 1;
         transitionIds.push(2);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
-    function gate0() internal {
+    function gate0() internal
+        executeNextIfEnoughGas()
+    {
         if (true) {
             transitionIds.push(3);
         } else {
             transitionIds.push(4);
         }
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
     function stepNonExistent() internal {}
 
-    function step2() internal {
+    function step2() internal
+        executeNextIfEnoughGas()
+    {
         DoStep2();
         transitionIds.push(5);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
     function step2Done() {
@@ -164,27 +178,19 @@ contract Choreo {
         }
     }
 
-    function step3() internal {
+    function step3() internal
+        executeNextIfEnoughGas()
+    {
         stepDone[3] = true;
         lastStep = 3;
         transitionIds.push(6);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
-    function gate1() internal {
+    function gate1() internal
+        executeNextIfEnoughGas()
+    {
         transitionIds.push(7);
         transitionIds.push(8);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
     //function step4() internal {
@@ -192,32 +198,23 @@ contract Choreo {
     //    transitionIds.push(9);
     //}
 
-    function step5() internal {
+    function step5() internal
+        executeNextIfEnoughGas()
+    {
         stepDone[5] = true;
         lastStep = 5;
         transitionIds.push(10);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
-    function step6() {
+    function step6() internal
+        executeNextIfEnoughGas()
+    {
         stepDone[6] = true;
         lastStep = 6;
         transitionIds.push(11);
-        if (msg.gas > minimumGas) {
-            GasLeft(msg.gas);
-            executeNext(msg.sender);
-        } else {
-            NotEnoughGas(msg.gas, minimumGas);
-        }
     }
 
     function gate2() {
-        // we cannot use array literals because they have fixed size and there is no conversion to variable size
         uint[2] memory steps = [uint(5), 6];
         if (andJoinGateway(steps)) {
             transitionIds.push(12);
