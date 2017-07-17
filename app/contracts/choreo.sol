@@ -2,8 +2,8 @@ pragma solidity ^0.4.11;
 
 contract Choreo {
     uint constant minimumGas = 100000;
-    address private participant1;
-    address private participant2;
+
+    mapping(uint => address) participants;
 
     //Mapping for branching purposes
     mapping(uint => bool) stepDone;
@@ -26,9 +26,9 @@ contract Choreo {
 
     uint public lastStep;
 
-	function Choreo(address _participant1, address _participant2) {
-        participant1 = _participant1;
-        participant2 = _participant2;
+	function Choreo(address _participant0, address _participant1) {
+        participants[0] = _participant0;
+        participants[1] = _participant1;
         
         createTransitions();
 
@@ -38,19 +38,19 @@ contract Choreo {
     }
 
     function createTransitions() {
-        transitions[0] = Transition(42, participant1, step0);
-        transitions[1] = Transition(0, participant1, step1);
-        transitions[2] = Transition(1, participant1, gate0);
-        transitions[3] = Transition(1, participant1, step2);
-        transitions[4] = Transition(1, participant2, stepNonExistent);
-        transitions[5] = Transition(2, participant1, step3);
-        transitions[6] = Transition(3, participant1, gate1);
-        transitions[7] = Transition(3, participant2, step5);
-        transitions[8] = Transition(3, participant2, step6);
-        transitions[9] = Transition(4, participant1, stepNonExistent);
-        transitions[10] = Transition(5, participant1, gate2);
-        transitions[11] = Transition(6, participant2, gate2);
-        transitions[12] = Transition(5, participant1, step7);
+        transitions[0] = Transition(42, participants[0], step0);
+        transitions[1] = Transition(0, participants[0], step1);
+        transitions[2] = Transition(1, participants[0], gate0);
+        transitions[3] = Transition(1, participants[0], step2);
+        transitions[4] = Transition(1, participants[1], stepNonExistent);
+        transitions[5] = Transition(2, participants[0], step3);
+        transitions[6] = Transition(3, participants[0], gate1);
+        transitions[7] = Transition(3, participants[1], step5);
+        transitions[8] = Transition(3, participants[1], step6);
+        transitions[9] = Transition(4, participants[0], stepNonExistent);
+        transitions[10] = Transition(5, participants[0], gate2);
+        transitions[11] = Transition(6, participants[1], gate2);
+        transitions[12] = Transition(5, participants[0], step7);
     }
 
     modifier only(address participant) {
@@ -131,7 +131,7 @@ contract Choreo {
 
     uint step0Data;
     function step0Done(uint someData)
-        only(participant1)
+        only(participants[0])
         whenDone(transitions[0].previousId)
     {
         step0Data = someData;
