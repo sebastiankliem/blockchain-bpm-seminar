@@ -1,38 +1,108 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 contract BearingsExchange {
-    string public name;
-    uint private fine;
-    address private manufacturerAddress;
-    address private supplierAddress;
-    address private nextSender;
-    string private contractText;
+    uint constant minimumGas = 100000;
 
-    function () internal nextTransition;
+    mapping(uint => address) participants;
+    
+    //Mapping for branching purposes
+    mapping(uint => bool) stepDone;
 
-    event Initialized(string name, address manufacturerAddress, address supplierAddress);
-    event ContractSent(address manufacturerAddress, address supplierAddress, string contractText);
-    event ContractSigned(address supplierAddress);
-    event PaymentReceived(address manufacturerAddress);
+    int[] public transitionIds;
+    mapping (uint => Transition) transitions;
+
+    struct Transition {
+        uint previousId;
+        address nextSender;
+        function () internal func;
+    }
+    
+    // string public name;
+    // uint private fine;
+    // address private participants[0];
+    // address private participants[1];
+    // address private nextSender;
+    // string private contractText;
+
+    // function () internal nextTransition;
+
+    // Decision logic attributes
+    event Initialized(string name, address participants[0], address participants[1]);
+    event ContractSent(address participants[0], address participants[1], string contractText);
+    event ContractSigned(address participants[1]);
+    event PaymentReceived(address participants[0]);
     event BearingsSent();
     event ConfirmationSent();
     event FineRequestSent(uint fine);
     event CancellationSent();
     event ProcessFinished();
 
-    function BearingsExchange(address _manufacturerAddress, address _supplierAddress, string _contractText) {
-        name = "BearingsExchange";
-        manufacturerAddress = _manufacturerAddress;
-        supplierAddress = _supplierAddress;
-        nextSender = manufacturerAddress;
-        contractText = _contractText;
+    uint public lastStep;
 
-        nextTransition = sendContractStep;
+    function BearingsExchange(address _participant0, address _participant1) {
+        participants[0] = _participant0;
+        participants[1] = _participant1;
+
+        createTransitions();
+
+        lastStep = 42;  // an arbitrary high number
+        stepDone[42] = true;
+        transitionIds.push(0);
     }
 
-    function executeNext() {
-        if (msg.sender == nextSender) {
-            nextTransition();
+    function createTransitions() {
+        transitions[0] = Transition(42, participants[0], sendContractStep);
+        transitions[1] = Transition(0, participants[0], step1);
+        transitions[2] = Transition(1, participants[0], gate0);
+        transitions[3] = Transition(1, participants[0], step2);
+        transitions[4] = Transition(1, participants[1], stepNonExistent);
+        transitions[5] = Transition(2, participants[0], step3);
+        transitions[6] = Transition(3, participants[0], gate1);
+        transitions[7] = Transition(3, participants[1], step5);
+        transitions[8] = Transition(3, participants[1], step6);
+        transitions[9] = Transition(4, participants[0], stepNonExistent);
+        transitions[10] = Transition(5, participants[0], gate2);
+        transitions[11] = Transition(6, participants[1], gate2);
+        transitions[12] = Transition(5, participants[0], step7);
+    }
+
+    modifier only(address participant) {
+        require(msg.sender == participant);
+        _;
+    }
+
+    modifier whenDone(uint stepId) {
+        require(stepDone[stepId]);
+        _;
+    }
+
+    modifier executeNextIfEnoughGas() {
+    _;
+    if (msg.gas > minimumGas) {
+        GasLeft(msg.gas);
+        executeNext(msg.sender);
+    } else {
+        NotEnoughGas(msg.gas, minimumGas);
+    }
+    
+    event ExecuteNext();
+    event TransitionE(uint previousId, address nextSender);
+    function executeNext(address sender) {
+        ExecuteNext();
+        GasLeft(msg.gas);
+        for (var index = 0; index < transitionIds.length; index++) {
+            var tran = transitions[transitionIds[index]];
+            TransitionE(tran.previousId, tran.nextSender);
+            if (sender == tran.nextSender && stepDone[tran.previousId]) {
+                if (msg.gas > minimumGas) {
+                    GasLeft(msg.gas);
+                    removeTransition(index);
+                    tran.func();
+                } else {
+                    NotEnoughGas(msg.gas, minimumGas);
+                }
+                GasLeft(msg.gas);
+            }
         }
     }
 
@@ -40,29 +110,26 @@ contract BearingsExchange {
         fine = _fine;
     }
 
-    function sendContractStep() internal {
-        //sendTransaction("Contract send!")
-        ContractSent(manufacturerAddress, supplierAddress, contractText);
-        nextSender = supplierAddress;
-        nextTransition = signContractStep;
+    function sendContractStep() executeNextIfEnoughGas() {
+        DoSendContract()
+        transitionIds.push(1);
     }
 
     function signContractStep() internal {
-        //sendTransaction("Contract signed!")
-        ContractSigned(supplierAddress);
-        nextSender = manufacturerAddress;
+        ContractSigned(participants[1]);
+        nextSender = participants[0];
         nextTransition = receivePaymentStep;
     }
 
     function receivePaymentStep() internal {
         PaymentReceived(msg.sender);
-        nextSender = supplierAddress;
+        nextSender = participants[1];
         nextTransition = sendBearingsStep;
     }
 
     function sendBearingsStep() internal {
         BearingsSent();
-        nextSender = manufacturerAddress;
+        nextSender = participants[0];
         nextTransition = fineDecision1;
     }
 
@@ -73,7 +140,7 @@ contract BearingsExchange {
         else {
             nextTransition = requestFineStep;
         }
-        nextSender = manufacturerAddress;
+        nextSender = participants[0];
         executeNext();
     }
 
@@ -85,7 +152,7 @@ contract BearingsExchange {
 
     function requestFineStep() internal {
         FineRequestSent(fine);
-        nextSender = supplierAddress;
+        nextSender = participants[1];
         nextTransition = fineDecision2;
     }
 
@@ -96,7 +163,7 @@ contract BearingsExchange {
         else {
             nextTransition = cancelContractStep;
         }
-        nextSender = supplierAddress;
+        nextSender = participants[1];
         executeNext();
     }
 
@@ -108,15 +175,6 @@ contract BearingsExchange {
 
     function processFinishedStep() internal {
         ProcessFinished();
-        selfdestruct(manufacturerAddress);
+        selfdestruct(participants[0]);
     }
-
-    // function requestDifferenceStep() internal {
-    //     DifferenceRequested();
-    // }
-
-    /* 
-    * Activity attributes: ID, Preconditions, Event, nextSender, nextStep
-    * Gateway attributes: Preconditions, (Decisions), nextSender
-    */
 }
