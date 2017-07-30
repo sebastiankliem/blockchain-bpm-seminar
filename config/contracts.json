@@ -12,6 +12,9 @@
       },
       "Choreo": {
         "deploy": false
+      },
+      "Escrow": {
+        "deploy": false
       }
     }
   }
