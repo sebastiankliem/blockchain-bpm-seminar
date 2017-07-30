@@ -62,10 +62,19 @@ contract Escrow {
         }
     }
 
+    event NotEnoughPayed(uint sent, uint required);
     event Refunded(uint amount);
     event RefundFailed(uint amount);
     modifier costs(uint _amount) {
-        require(msg.value >= _amount);
+        if (msg.value < _amount) {
+            NotEnoughPayed(msg.value, _amount);
+            if (msg.sender.send(msg.value)) {
+                Refunded(msg.value);
+            } else {
+                RefundFailed(msg.value);
+            }
+            return;
+        }
         _;
         if (msg.value > _amount)
             if (msg.sender.send(msg.value - _amount)) {
