@@ -27,10 +27,10 @@ contract BearingsExchange {
     // function () internal nextTransition;
 
     // Decision logic attributes
-    event Initialized(string name, address participants[0], address participants[1]);
-    event ContractSent(address participants[0], address participants[1], string contractText);
-    event ContractSigned(address participants[1]);
-    event PaymentReceived(address participants[0]);
+    event Initialized(string name, address participant0, address participant1);
+    event ContractSent(address participant0, address participant1, string contractText);
+    event ContractSigned(address participant1);
+    event PaymentReceived(address participant0);
     event BearingsSent();
     event ConfirmationSent();
     event FineRequestSent(uint fine);
@@ -77,12 +77,13 @@ contract BearingsExchange {
     }
 
     modifier executeNextIfEnoughGas() {
-    _;
-    if (msg.gas > minimumGas) {
-        GasLeft(msg.gas);
-        executeNext(msg.sender);
-    } else {
-        NotEnoughGas(msg.gas, minimumGas);
+        _;
+        if (msg.gas > minimumGas) {
+            GasLeft(msg.gas);
+            executeNext(msg.sender);
+        } else {
+            NotEnoughGas(msg.gas, minimumGas);
+        }
     }
     
     event ExecuteNext();
@@ -111,7 +112,7 @@ contract BearingsExchange {
     }
 
     function sendContractStep() executeNextIfEnoughGas() {
-        DoSendContract()
+        DoSendContract();
         transitionIds.push(1);
     }
 
