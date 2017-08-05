@@ -48,6 +48,7 @@ function sendContract() {
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
         contract.CancellationSent().then(e => showContractCancelledSection(e.args));
+        contract.ProcessFinished().then(e => showProcessFinished(e.args));
     });
 }
 
@@ -86,3 +87,6 @@ function showContractCancelledSection() {
     $('#contract_cancelled_section').removeClass('hidden');
 }
 
+function showProcessFinished() {
+    $('#process_finished_section').removeClass('hidden');
+}
