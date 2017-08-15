@@ -62,26 +62,27 @@ contract Escrow {
         }
     }
 
-    event NotEnoughPayed(uint sent, uint required);
     event Refunded(uint amount);
     event RefundFailed(uint amount);
+    function refund(address recipient, uint value) {
+        if (recipient.send(value)) {
+            Refunded(value);
+        } else {
+            RefundFailed(value);
+        }
+    }
+
+    event NotEnoughPayed(uint sent, uint required);
     modifier costs(uint _amount) {
         if (msg.value < _amount) {
             NotEnoughPayed(msg.value, _amount);
-            if (msg.sender.send(msg.value)) {
-                Refunded(msg.value);
-            } else {
-                RefundFailed(msg.value);
-            }
+            refund(msg.sender, msg.value);
             return;
         }
         _;
-        if (msg.value > _amount)
-            if (msg.sender.send(msg.value - _amount)) {
-                Refunded(msg.value - _amount);
-            } else {
-                RefundFailed(msg.value - _amount);
-            }
+        if (msg.value > _amount) {
+            refund(msg.sender, msg.value - _amount);
+        }
     }
 
     function noop() internal { }
