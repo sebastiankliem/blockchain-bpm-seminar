@@ -51,7 +51,10 @@ function sendContract() {
         contract.BearingsSent().then(e => showBearingsSentSection(e.args));
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
-        contract.FinePayed().then(e => showFinePayedSection(e.args));
+        contract.FinePayed().then(e => {
+            showFinePayedSection(e.args);
+            contract.executeNext({gas: 400000});
+        });
         contract.CancellationSent().then(e => showContractCancelledSection(e.args));
         contract.ProcessFinished().then(e => showProcessFinished(e.args));
     });
