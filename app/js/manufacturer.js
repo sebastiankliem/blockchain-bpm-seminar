@@ -57,6 +57,7 @@ function sendContract() {
         });
         contract.CancellationSent().then(e => showContractCancelledSection(e.args));
         contract.ProcessFinished().then(e => showProcessFinished(e.args));
+        contract.NotEnoughPayed().then(e => showWrongPaymentAmount(e.args));
     });
 }
 
@@ -81,6 +82,12 @@ function sendAnalysis() {
         contract.executeNext({gas:400000});
     })
     $('#fine_amount, #send_analysis').prop("disabled", true);
+}
+
+function showWrongPaymentAmount(args) {
+    $('#wrong_payment_sent').text(args.sent);
+    $('#wrong_payment_required').text(args.required);
+    $('#wrong_payment_amount_section').removeClass('hidden');
 }
 
 function showConfirmationSentSection() {
