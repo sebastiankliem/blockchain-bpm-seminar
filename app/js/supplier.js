@@ -29,6 +29,10 @@ whenEnvIsLoaded(function() {
         });
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
+        contract.FinePayed().then(e => {
+            showFinePayedSection(e.args);
+            contract.executeNext({gas: 400000});
+        });
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.CancellationSent().then(e => showContractCancelledSection(e.args));
         contract.ProcessFinished().then(e => showProcessFinished(e.args));
@@ -96,16 +100,26 @@ function showPaymentReceivedSection(args) {
 function showConfirmationSentSection() {
     $('#confirmation_sent_section').removeClass('hidden');
 }
+
+var fine;
 function showFineRequestSentSection(args) {
-    $('#fine_request_amount').text(args.fine);
+    $('#fine_request_amount').text(args.percentage);
+    fine = args.percentage;
     $('#fine_request_sent_section').removeClass('hidden');
 }
 
 function sendFee() {
-    console.log("fee sent");
-    contract.executeNext({gas:400000}).then(function(transaction) {
-      $('#send_fee').prop('disabled', true);
+    console.log("sending fee", fine);
+    // use valueOf() because of a bug in web3 0.19
+    // https://github.com/ethereum/web3.js/issues/925
+    contract.payFine(fine.valueOf(), {gas: 400000}).then(transaction => {
+        console.log("fee sent");
+        $('#send_fee').prop('disabled', true);
     });
+}
+
+function showFinePayedSection() {
+    $('#fine_payed_section').removeClass('hidden');
 }
 
 function showContractCancelledSection() {

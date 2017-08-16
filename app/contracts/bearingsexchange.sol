@@ -262,6 +262,15 @@ contract BearingsExchange {
     {
         FineRequestSent(fine);
         transitionIds.push(10);
+    }
+
+    event FinePayed(uint amount);
+    function payFine(uint _fine) external
+        whenDone(transitions[9].previousId)
+        only(participants[1])
+        executeNextIfEnoughGas()
+    {
+        FinePayed(_fine);
         stepDone[9] = true;
     }
 

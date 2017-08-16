@@ -51,6 +51,7 @@ function sendContract() {
         contract.BearingsSent().then(e => showBearingsSentSection(e.args));
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
+        contract.FinePayed().then(e => showFinePayedSection(e.args));
         contract.CancellationSent().then(e => showContractCancelledSection(e.args));
         contract.ProcessFinished().then(e => showProcessFinished(e.args));
     });
@@ -58,7 +59,7 @@ function sendContract() {
 
 function showSignedContractSection(args) {
     $('#contract_signed_section').removeClass("hidden");
-    $('#manufacturer__signer').text(args.supplierAddress);
+    $('#manufacturer__signer').text(args.sender);
 
     $('#pay_supplier_section').removeClass('hidden');
 }
@@ -85,6 +86,10 @@ function showConfirmationSentSection() {
 
 function showFineRequestSentSection() {
     $('#fine_request_sent_section').removeClass('hidden');
+}
+
+function showFinePayedSection() {
+    $('#fine_payed_section').removeClass('hidden');
 }
 
 function showContractCancelledSection() {
