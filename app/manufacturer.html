@@ -27,6 +27,11 @@
                 <button id="send_payment" class="btn btn-primary">Send Payment</button>
             </form>
         </div>
+        <div id="wrong_payment_amount_section" class="section hidden">
+            Wrong Payment Amount<br>
+            Sent: <span id="wrong_payment_sent"></span><br>
+            Required: <span id="wrong_payment_required"></span>
+        </div>
         <div id="bearings_sent_section" class="section hidden">
             Bearings sent. Please check and set fine.
             <form class="form form-horizontal">
@@ -37,11 +42,14 @@
         <div id="fine_request_sent_section" class="section hidden">
             Fine Request sent.
         </div>
+        <div id="fine_payed_section" class="section hidden">
+            Fine payed.
+        </div>
         <div id="confirmation_sent_section" class="section hidden">
             Confirmation sent.
         </div>
         <div id="contract_cancelled_section" class="section hidden">
-            Contract calcelled
+            Contract cancelled
         </div>
         <div id="process_finished_section" class="section hidden">
             Process Finished

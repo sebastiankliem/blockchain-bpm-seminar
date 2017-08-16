@@ -23,9 +23,16 @@ whenEnvIsLoaded(function() {
     getContractId().then(function() {
         contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
         //console.log(contract);
-        contract.ContractSent().then(e => showContractSection(e.args));
+        contract.ContractSent().then(e => {
+            showContractSection(e.args);
+            contract.executeNext({gas:400000});
+        });
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
+        contract.FinePayed().then(e => {
+            showFinePayedSection(e.args);
+            contract.executeNext({gas: 400000});
+        });
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
         contract.CancellationSent().then(e => showContractCancelledSection(e.args));
         contract.ProcessFinished().then(e => showProcessFinished(e.args));
@@ -68,19 +75,19 @@ function getLastContractIdTransaction(myaccount) {
 
 function showContractSection(args) {
     $('#incoming_contract_section').removeClass("hidden");
-    $('#manufacturer_address').text(args.manufacturerAddress);
+    $('#manufacturer_address').text(args.sender);
     $('#contract_address').text(contract.address);
-    $('#data').text(args.contractText);;
+    $('#data').text(args.text);
 }
 
 function sendSignedContract() {
-    contract.executeNext().then(function(transaction) {
+    contract.signContract("signed contract", {gas:400000}).then(function(transaction) {
         $('#incoming_contract_section textarea, #incoming_contract_section button').prop("disabled", true)
     })
 }
 
 function sendBearings() {
-    contract.executeNext().then(function(transaction) {
+    contract.executeNext({gas:400000}).then(function(transaction) {
       $('#send_bearings').prop('disabled', true);
     });
 }
@@ -93,16 +100,26 @@ function showPaymentReceivedSection(args) {
 function showConfirmationSentSection() {
     $('#confirmation_sent_section').removeClass('hidden');
 }
+
+var fine;
 function showFineRequestSentSection(args) {
-    $('#fine_request_amount').text(args.fine);
+    $('#fine_request_amount').text(args.percentage);
+    fine = args.percentage;
     $('#fine_request_sent_section').removeClass('hidden');
 }
 
 function sendFee() {
-    console.log("fee sent");
-    contract.executeNext().then(function(transaction) {
-      $('#send_fee').prop('disabled', true);
+    console.log("sending fee", fine);
+    // use valueOf() because of a bug in web3 0.19
+    // https://github.com/ethereum/web3.js/issues/925
+    contract.payFine(fine.valueOf(), {gas: 400000}).then(transaction => {
+        console.log("fee sent");
+        $('#send_fee').prop('disabled', true);
     });
+}
+
+function showFinePayedSection() {
+    $('#fine_payed_section').removeClass('hidden');
 }
 
 function showContractCancelledSection() {

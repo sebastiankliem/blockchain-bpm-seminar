@@ -22,8 +22,6 @@ contract Escrow {
     event NotEnoughGas(uint gasLeft, uint gasExpected);
     event GasLeft(uint gasLeft);
 
-    uint public lastStep;
-
 	function Escrow(address _participant0, address _participant1) {
         participants[0] = _participant0;
         participants[1] = _participant1;
@@ -32,7 +30,6 @@ contract Escrow {
 
         stepDone[0] = true;
         transitionIds.push(1);
-        lastStep = 0;
     }
 
     function createTransitions() {
@@ -62,26 +59,27 @@ contract Escrow {
         }
     }
 
+    event Refunded(address recipient, uint amount);
+    event RefundFailed(address recipient, uint amount);
+    function refund(address recipient, uint amount) internal {
+        if (recipient.send(amount)) {
+            Refunded(recipient, amount);
+        } else {
+            RefundFailed(recipient, amount);
+        }
+    }
+
     event NotEnoughPayed(uint sent, uint required);
-    event Refunded(uint amount);
-    event RefundFailed(uint amount);
     modifier costs(uint _amount) {
         if (msg.value < _amount) {
             NotEnoughPayed(msg.value, _amount);
-            if (msg.sender.send(msg.value)) {
-                Refunded(msg.value);
-            } else {
-                RefundFailed(msg.value);
-            }
+            refund(msg.sender, msg.value);
             return;
         }
         _;
-        if (msg.value > _amount)
-            if (msg.sender.send(msg.value - _amount)) {
-                Refunded(msg.value - _amount);
-            } else {
-                RefundFailed(msg.value - _amount);
-            }
+        if (msg.value > _amount) {
+            refund(msg.sender, msg.value - _amount);
+        }
     }
 
     function noop() internal { }
@@ -93,11 +91,6 @@ contract Escrow {
             var tran = transitions[transitionIds[i]];
             NextSender(tran.nextSender);
         }
-    }
-
-    event LastStep(uint step);
-    function getLastStep() {
-        LastStep(lastStep);
     }
 
     event Length(uint length);
@@ -141,7 +134,6 @@ contract Escrow {
         whenDone(transitions[1].previousId)
         executeNextIfEnoughGas()
     {
-        lastStep = 1;
         stepDone[1] = true;
         transitionIds.push(2);
     }
@@ -152,7 +144,6 @@ contract Escrow {
         whenDone(transitions[2].previousId)
     {
         SendPayment(paymentAmount, participants[0]);
-        lastStep = 2;
         stepDone[2] = true;
         transitionIds.push(4);
     }
@@ -164,16 +155,14 @@ contract Escrow {
         costs(paymentAmount)
         executeNextIfEnoughGas()
     {
-        participants[1].transfer(paymentAmount);
-        lastStep = 3;
         stepDone[3] = true;
+        participants[1].transfer(paymentAmount);
     }
 
     function stepAfter() internal
         whenDone(transitions[4].previousId)
         executeNextIfEnoughGas()
     {
-        lastStep = 4;
         stepDone[4] = true;
         Done();
     }
