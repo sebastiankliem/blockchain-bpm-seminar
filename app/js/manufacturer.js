@@ -36,11 +36,15 @@ function getPossibleReceivers() {
 function sendContract() {
     let supplier_address = $('#supplier_address').val();
     console.log("sending contract");
-    this.BearingsExchange.deploy([address, supplier_address, "Lorem Ipsum"], {}).then(function(bearingsexchange) {
+    this.BearingsExchange.deploy([address, supplier_address], {gas:4000000}).then(function(bearingsexchange) {
         var transaction = web3.eth.sendTransaction({to: supplier_address, data: bearingsexchange.address});
         contract = bearingsexchange;
         console.log("new contract at", contract.address);
-        contract.executeNext();
+        contract.DoSendContract().then(e => {
+            console.log(e.event, e.args);
+            contract.sendContract("a contract", {gas: 400000})
+        });
+        contract.executeNext({gas:400000});
         contract.ContractSigned().then(e => showSignedContractSection(e.args));
         $('#send_contract, #supplier_address').prop("disabled", true);
 
@@ -60,7 +64,7 @@ function showSignedContractSection(args) {
 }
 
 function sendPayment() {
-    contract.executeNext();
+    contract.sendPayment({value: "5000000000000000000", gas: 400000});
     $('#send_payment').prop("disabled", true);
 }
 
@@ -69,8 +73,8 @@ function showBearingsSentSection() {
 }
 
 function sendAnalysis() {
-    contract.setFine($('#fine_amount').val()).then(function(transaction) {
-        contract.executeNext();
+    contract.setFine($('#fine_amount').val(), {gas:400000}).then(function(transaction) {
+        contract.executeNext({gas:400000});
     })
     $('#fine_amount, #send_analysis').prop("disabled", true);
 }

@@ -23,7 +23,10 @@ whenEnvIsLoaded(function() {
     getContractId().then(function() {
         contract = new EmbarkJS.Contract({ abi: BearingsExchange.abi, address: contractId });
         //console.log(contract);
-        contract.ContractSent().then(e => showContractSection(e.args));
+        contract.ContractSent().then(e => {
+            showContractSection(e.args);
+            contract.executeNext({gas:400000});
+        });
         contract.PaymentReceived().then(e => showPaymentReceivedSection(e.args));
         contract.FineRequestSent().then(e => showFineRequestSentSection(e.args));
         contract.ConfirmationSent().then(e => showConfirmationSentSection(e.args));
@@ -68,19 +71,19 @@ function getLastContractIdTransaction(myaccount) {
 
 function showContractSection(args) {
     $('#incoming_contract_section').removeClass("hidden");
-    $('#manufacturer_address').text(args.manufacturerAddress);
+    $('#manufacturer_address').text(args.sender);
     $('#contract_address').text(contract.address);
-    $('#data').text(args.contractText);;
+    $('#data').text(args.text);
 }
 
 function sendSignedContract() {
-    contract.executeNext().then(function(transaction) {
+    contract.signContract("signed contract", {gas:400000}).then(function(transaction) {
         $('#incoming_contract_section textarea, #incoming_contract_section button').prop("disabled", true)
     })
 }
 
 function sendBearings() {
-    contract.executeNext().then(function(transaction) {
+    contract.executeNext({gas:400000}).then(function(transaction) {
       $('#send_bearings').prop('disabled', true);
     });
 }
@@ -100,7 +103,7 @@ function showFineRequestSentSection(args) {
 
 function sendFee() {
     console.log("fee sent");
-    contract.executeNext().then(function(transaction) {
+    contract.executeNext({gas:400000}).then(function(transaction) {
       $('#send_fee').prop('disabled', true);
     });
 }
